@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="chen.me.dao.Users">
+
+	<!--  检查数据库是否存在此用户名用户  -->
+    <select id="CheckUserByUsername" resultType="User">
+        SELECT * from tb_user where username=#{username} and password=#{password}and account_type=0;
+    </select>
+    <!-- 检查数据库是否存在此手机号用户 -->
+    <select id="CheckUserByPhone" resultType="User">
+        SELECT * from tb_user where phone=#{phone} and password=#{password}and account_type=0;
+    </select>
+    <!-- 检查数据库是否存在此邮箱用户 -->
+    <select id="CheckUserByEmail" resultType="User">
+        SELECT * from tb_user where email=#{email} and password=#{password}and account_type=0;
+    </select>
+    <!-- 检查数据库是否存在此网易用户 -->
+    <select id="CheckUserByNeteaseByUid" resultType="User">
+        SELECT * from tb_user where uid=#{uid} and account_type=1;
+    </select>
+    
+    <!-- 添加用户名用户 -->
+    <insert id="AddUserByUsername" useGeneratedKeys="true" keyProperty="id">
+    	INSERT INTO tb_user(account_type,username,password) VALUES (0,#{username},#{password});
+    </insert>
+    <!-- 添加手机号用户 -->
+    <insert id="AddUserByPhone" useGeneratedKeys="true" keyProperty="id">
+    	INSERT INTO tb_user(account_type,phone,password) VALUES (0,#{phone},#{password});
+    </insert>
+    <!-- 添加邮箱用户 -->
+    <insert id="AddUserByEmail" useGeneratedKeys="true" keyProperty="id">
+    	INSERT INTO tb_user(account_type,email,password) VALUES (0,#{email},#{password});
+    </insert>
+    <!-- 添加网易云用户 -->
+    <insert id="AddUserByNetease" useGeneratedKeys="true" keyProperty="id">
+    	INSERT INTO tb_user(account_type,netease_username,netease_password,uid,netease_phone,head_icon,netease_nickname,qqnickname,city,netease_info) VALUES (#{account_type},#{netease_username},#{netease_password},#{uid},#{netease_phone},#{head_icon},#{netease_nickname},#{qqnickname},#{city},#{netease_info});
+    </insert>
+    
+    <!-- 更新网易云用户信息  by uid -->
+    <update id="UpdateUserByNetease">
+    	UPDATE tb_user SET netease_username=#{netease_username},netease_password=#{netease_password},netease_phone=#{netease_phone},head_icon=#{head_icon},netease_nickname=#{netease_nickname},qqnickname=#{qqnickname},city=#{city},netease_info=#{netease_info} WHERE uid=#{uid};
+    </update>
+    
+    <!-- 更新网易云用户信息  by uid -->
+    <update id="UpdateUserSongSheetByNetease">
+    	UPDATE tb_user SET netease_username=#{uid},song_sheet_id=#{song_sheet_id} WHERE uid=#{uid};
+    </update>
+</mapper>

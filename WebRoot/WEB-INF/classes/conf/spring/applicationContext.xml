@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd  
+	http://www.springframework.org/schema/aop   
+	http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+	http://www.springframework.org/schema/tx   
+	http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+	http://www.springframework.org/schema/context   
+	http://www.springframework.org/schema/context/spring-context-4.0.xsd
+	http://www.springframework.org/schema/util   
+	http://www.springframework.org/schema/util/spring-util-4.0.xsd
+	http://www.springframework.org/schema/mvc
+	http://www.springframework.org/schema/mvc/spring-mvc.xsd
+	">
+
+	<!--  数据库配置  -->
+	<!--  解密 -->
+	<bean class="chen.me.util.EncryptPropertyPlaceholderConfigurer" p:location="classpath:conf/db/jdbc.properties" p:fileEncoding="utf-8"></bean>
+	<!--  初始化连接池 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+         <property name="driverClass"><value>${driver}</value></property>
+         <property name="jdbcUrl"><value>${url}</value></property>               
+         <property name="user"><value>${user}</value></property>
+         <property name="password"><value>${password}</value></property>
+         
+         <property name="minPoolSize"><value>1</value></property>
+         <property name="maxPoolSize"><value>20</value></property>
+         <property name="maxIdleTime"><value>1800</value></property>
+         <property name="acquireIncrement"><value>2</value></property>
+         <property name="maxStatements"><value>0</value></property>
+         <property name="initialPoolSize"><value>2</value></property>
+         <property name="idleConnectionTestPeriod"><value>1800</value></property>
+         <property name="acquireRetryAttempts"><value>30</value></property>
+         <property name="breakAfterAcquireFailure"><value>true</value></property>
+         <property name="testConnectionOnCheckout"><value>false</value></property>
+              
+	</bean>
+	
+	<!-- mybatis的配置 -->
+	<!-- 初始化mybatis文件 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"  p:configLocation="classpath:conf/db/mybatis-config.xml"
+		p:mapperLocations="classpath:conf/db/sql/*.xml" p:typeAliasesPackage="chen.me.bean">
+	</bean>
+	<!-- mybatis的mapper转换器 也就是说的接口，里面原理是采用的jdk的动态代理实现的-->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="chen.me.dao"></property>
+	</bean>
+	<!-- mybatis的事务管理 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager" p:dataSource-ref="dataSource" />
+	<!-- 事务拦截器-->
+ 	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<!--  命名规范，***开头，若不是不执行事务  -->
+			<tx:method name="save*" read-only="false" propagation="REQUIRED" />
+			<tx:method name="update*" read-only="false" propagation="REQUIRED" />
+			<tx:method name="delete*" read-only="false" propagation="REQUIRED" />
+			
+			<tx:method name="find*" read-only="true" propagation="SUPPORTS" />
+			<tx:method name="get*" read-only="true" propagation="SUPPORTS" />
+			<tx:method name="count*" read-only="true" propagation="SUPPORTS" />
+			<tx:method name="*" read-only="true" propagation="SUPPORTS" />
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="interceptorPointCuts" expression="execution (* chen.me.dao..*.*(..))" />
+		<aop:advisor pointcut-ref="interceptorPointCuts" advice-ref="txAdvice" />
+	</aop:config>
+	
+	
+</beans>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="chen.me.dao.Songs">
+	<select id="CheckSong" resultType="Song">
+		SELECT * FROM tb_song WHERE song_id=#{song_id};
+	</select>
+	
+	<insert id="AddSong" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO tb_song VALUES (null,#{song_id},#{song_name},#{singer_id},#{singer_name},#{alia},#{pop},#{album_id},#{album_name},#{album_pic_url},#{create_time},#{dt});
+	</insert>
+	
+	<update id="UpdateSong" useGeneratedKeys="true" keyProperty="id">
+		UPDATE tb_song SET song_name=#{song_name},singer_id=#{singer_id},singer_name=#{singer_name},alia=#{alia},pop=#{pop},album_id=#{album_id},album_name=#{album_name},album_pic_url=#{album_pic_url},song_loc=#{song_loc},dt=#{dt} WHERE song_id=#{song_id};
+	</update>
+	
+	<select id="CheckHotSong" resultType="Song">
+		SELECT * FROM tb_song WHERE pop>=100 LIMIT #{position},1;
+	</select>
+</mapper>
